@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Convite Especial - Josiane</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f5f0ff 0%, #e8d9ff 100%);
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        /* Tela Inicial */
+        .tela-inicial {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #f5f0ff 0%, #e8d9ff 100%);
+            z-index: 2000;
+            transition: opacity 1s ease, visibility 1s ease;
+        }
+
+        .tela-inicial.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .container-inicial {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .frase {
+            font-size: 2.5rem;
+            color: #6b4e8f;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            animation: aparecer 1s ease;
+        }
+
+        .botao-abrir {
+            background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.3rem;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255,107,107,0.3);
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        .botao-abrir:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(255,107,107,0.4);
+        }
+
+        /* Carta */
+        .carta {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            width: 300px;
+            height: 400px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 3000;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .carta.aberta {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+            pointer-events: auto;
+            animation: pulsar 0.5s ease;
+        }
+
+        .carta.aproximando {
+            transform: translate(-50%, -50%) scale(1.5);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .carta.saindo {
+            transform: translate(-50%, -50%) scale(3);
+            opacity: 0;
+            pointer-events: none;
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.8s;
+        }
+
+        .envelope {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background: #ffd7d7;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .carta-corpo {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #fff9e6;
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transform-origin: top;
+            animation: fecharCarta 0.5s ease forwards;
+        }
+
+        .carta.aberta .carta-corpo {
+            animation: abrirCarta 0.8s ease forwards;
+        }
+
+        .carta-texto {
+            font-size: 1.2rem;
+            color: #6b4e8f;
+            line-height: 1.6;
+            text-align: center;
+            margin-bottom: 20px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s 0.3s, transform 0.5s 0.3s;
+        }
+
+        .carta.aberta .carta-texto {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .coracao {
+            color: #ff6b6b;
+            font-size: 3rem;
+            animation: bater 1s infinite;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.3);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s;
+            z-index: 1999;
+        }
+
+        .overlay.visivel {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Conteúdo Principal */
+        .conteudo-principal {
+            opacity: 0;
+            transition: opacity 1s ease;
+            padding: 20px;
+        }
+
+        .conteudo-principal.visible {
+            opacity: 1;
+        }
+
+        /* Player de Música Aprimorado */
+        .music-player {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            background: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,107,107,0.3);
+        }
+
+        .play-btn, .mute-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+            border: none;
+            color: white;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            transition: all 0.3s;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        .play-btn:hover, .mute-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 15px rgba(255,107,107,0.4);
+        }
+
+        .play-btn.playing {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+        }
+
+        .mute-btn.muted {
+            background: linear-gradient(45deg, #666, #888);
+        }
+
+        .volume-control {
+            width: 100px;
+            display: flex;
+            align-items: center;
+        }
+
+        .volume-control input {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: linear-gradient(90deg, #ff6b6b, #ff8e8e);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .volume-control input::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: white;
+            border: 2px solid #ff6b6b;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .main-content {
+            max-width: 600px;
+            margin: 50px auto;
+            text-align: center;
+        }
+
+        .envelope-icon {
+            font-size: 5rem;
+            animation: flutuar 2s infinite;
+            margin-bottom: 20px;
+        }
+
+        .titulo {
+            margin-bottom: 30px;
+        }
+
+        .nome-destaque {
+            font-size: 3rem;
+            color: #ff6b6b;
+            display: block;
+            text-shadow: 2px 2px 4px rgba(255,107,107,0.3);
+        }
+
+        .convite-texto {
+            font-size: 1.5rem;
+            color: #6b4e8f;
+            display: block;
+            margin-top: 10px;
+        }
+
+        /* Carrossel */
+        .carrossel-container {
+            position: relative;
+            max-width: 600px;
+            margin: 30px auto;
+            overflow: hidden;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .carrossel {
+            display: flex;
+            transition: transform 0.5s ease;
+        }
+
+        .slide {
+            min-width: 100%;
+            height: 300px;
+        }
+
+        .slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .prev, .next {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.9);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            color: #ff6b6b;
+            font-weight: bold;
+        }
+
+        .prev { left: 10px; }
+        .next { right: 10px; }
+
+        .prev:hover, .next:hover {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .indicadores {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.5);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .dot.active {
+            background: #ff6b6b;
+            transform: scale(1.2);
+        }
+
+        .convite-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            padding: 40px 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin: 30px 0;
+            backdrop-filter: blur(10px);
+        }
+
+        .mensagem-convite {
+            font-size: 1.2rem;
+            color: #6b4e8f;
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+
+        .detalhes-convite {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .detalhe-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.1rem;
+            color: #555;
+            justify-content: center;
+        }
+
+        .detalhe-item a {
+            color: #ff6b6b;
+            text-decoration: none;
+            transition: color 0.3s;
+            font-weight: bold;
+        }
+
+        .detalhe-item a:hover {
+            color: #ff8e8e;
+            text-decoration: underline;
+        }
+
+        .icone {
+            font-size: 1.3rem;
+        }
+
+        .secao-confirmacao {
+            background: #fff9e6;
+            border-radius: 20px;
+            padding: 25px;
+            margin: 30px 0;
+        }
+
+        .titulo-secao {
+            font-size: 1.3rem;
+            color: #6b4e8f;
+            margin-bottom: 20px;
+        }
+
+        .opcoes-presenca {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 25px;
+        }
+
+        .opcao-radio {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .opcao-radio input {
+            display: none;
+        }
+
+        .radio-custom {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ff6b6b;
+            border-radius: 50%;
+            display: inline-block;
+            position: relative;
+        }
+
+        .opcao-radio input:checked + .radio-custom::after {
+            content: '';
+            width: 12px;
+            height: 12px;
+            background: #ff6b6b;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .secao-presenca {
+            display: none;
+        }
+
+        .secao-presenca.ativa {
+            display: block;
+        }
+
+        .contador-pessoas {
+            margin-bottom: 20px;
+        }
+
+        .contador-pessoas label {
+            display: block;
+            margin-bottom: 10px;
+            color: #555;
+        }
+
+        .input-numero {
+            width: 80px;
+            padding: 8px;
+            border: 2px solid #ffb8b8;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        .container-nomes {
+            margin-bottom: 20px;
+        }
+
+        .campo-nome {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .numero-pessoa {
+            width: 30px;
+            height: 30px;
+            background: #ff6b6b;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .input-nome {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #ffb8b8;
+            border-radius: 10px;
+            font-size: 0.9rem;
+        }
+
+        .botao-confirmar-presenca,
+        .botao-enviar-desculpas {
+            background: linear-gradient(45deg, #25D366, #128C7E);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid rgba(255,255,255,0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .botao-confirmar-presenca:hover,
+        .botao-enviar-desculpas:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4);
+        }
+
+        .seta {
+            font-size: 1.2rem;
+        }
+
+        .whatsapp-indicator {
+            font-size: 1.3rem;
+            animation: pulseWhatsApp 1.5s infinite;
+        }
+
+        @keyframes pulseWhatsApp {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        .mensagem-desculpas textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ffb8b8;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            resize: vertical;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .mensagem-carinhosa {
+            font-size: 1.1rem;
+            color: #ff6b6b;
+            font-style: italic;
+            margin-top: 20px;
+        }
+
+        .mensagem-rodape {
+            color: #6b4e8f;
+            margin-top: 30px;
+        }
+
+        .assinatura {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 4000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+
+        .modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 30px;
+            max-width: 400px;
+            text-align: center;
+            position: relative;
+            transform: scale(0.7);
+            transition: transform 0.3s;
+        }
+
+        .modal.show .modal-content {
+            transform: scale(1);
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #999;
+            transition: color 0.3s;
+        }
+
+        .close-modal:hover {
+            color: #ff6b6b;
+        }
+
+        .botao-fechar-modal {
+            background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+            color: white;
+            border: none;
+            padding: 10px 30px;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: transform 0.3s;
+        }
+
+        .botao-fechar-modal:hover {
+            transform: translateY(-2px);
+        }
+
+        @keyframes aparecer {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulsar {
+            0% { transform: translate(-50%, -50%) scale(0.9); }
+            50% { transform: translate(-50%, -50%) scale(1.1); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+
+        @keyframes bater {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        @keyframes flutuar {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes abrirCarta {
+            0% { transform: rotateX(0deg); }
+            100% { transform: rotateX(180deg); }
+        }
+
+        @keyframes fecharCarta {
+            0% { transform: rotateX(180deg); }
+            100% { transform: rotateX(0deg); }
+        }
+
+        @media (max-width: 768px) {
+            .frase {
+                font-size: 2rem;
+            }
+            
+            .carta {
+                width: 250px;
+                height: 350px;
+            }
+            
+            .nome-destaque {
+                font-size: 2.5rem;
+            }
+            
+            .slide {
+                height: 200px;
+            }
+            
+            .opcoes-presenca {
+                flex-direction: column;
+                align-items: center;
+                gap: 15px;
+            }
+            
+            .music-player {
+                top: 10px;
+                right: 10px;
+                padding: 8px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Tela Inicial -->
+    <div class="tela-inicial" id="telaInicial">
+        <div class="container-inicial">
+            <h1 class="frase">💝 Josiane te enviou um presente 💝</h1>
+            <button class="botao-abrir" id="abrirPresente">Abrir presente 🎁</button>
+        </div>
+    </div>
+
+    <!-- Overlay -->
+    <div class="overlay" id="overlay"></div>
+    
+    <!-- Carta -->
+    <div class="carta" id="carta">
+        <div class="envelope">
+            <div class="carta-corpo">
+                <div class="carta-texto">
+                    <p>Feliz Aniversário!</p>
+                    <p>Que seu dia seja especial</p>
+                    <p>Com carinho,</p>
+                    <p><strong>Josiane</strong></p>
+                </div>
+                <div class="coracao">❤️</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Conteúdo Principal -->
+    <div class="conteudo-principal" id="conteudoPrincipal">
+        <!-- Player de Música Aprimorado -->
+        <div class="music-player">
+            <audio id="musica" loop preload="auto">
+                <source src="musica.m4a" type="audio/mpeg">
+                <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+                Seu navegador não suporta áudio.
+            </audio>
+            
+            <button id="playPauseBtn" class="play-btn">
+                <span class="play-icon">▶</span>
+            </button>
+            
+            <button id="muteBtn" class="mute-btn muted">
+                <span class="mute-icon">🔇</span>
+            </button>
+            
+            <div class="volume-control">
+                <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="0.5">
+            </div>
+        </div>
+
+        <!-- Conteúdo Principal -->
+        <main class="main-content">
+            <div class="envelope-icon">💌</div>
+            
+            <h1 class="titulo">
+                <span class="nome-destaque">Josiane</span>
+                <span class="convite-texto">tem um convite especial para você!</span>
+            </h1>
+
+            <div class="carrossel-container">
+                <div class="carrossel" id="carrossel">
+                    <div class="slide">
+                        <img src="imagem1.jpg" alt="Imagem 1" onerror="this.src='https://via.placeholder.com/600x400/ffb8b8/ffffff?text=Imagem+1'">
+                    </div>
+                    <div class="slide">
+                        <img src="imagem2.jpg" alt="Imagem 2" onerror="this.src='https://via.placeholder.com/600x400/ffd7d7/ffffff?text=Imagem+2'">
+                    </div>
+                    <div class="slide">
+                        <img src="imagem3.jpg" alt="Imagem 3" onerror="this.src='https://via.placeholder.com/600x400/fff9e6/6b4e8f?text=Imagem+3'">
+                    </div>
+                </div>
+                
+                <button class="prev">&#10094;</button>
+                <button class="next">&#10095;</button>
+                
+                <div class="indicadores">
+                    <span class="dot active"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                </div>
+            </div>
+            
+            <div class="convite-card">
+                <p class="mensagem-convite">
+                    Você está convidado para um momento muito especial...
+                </p>
+                
+                <div class="detalhes-convite">
+                    <div class="detalhe-item">
+                        <span class="icone">📅</span>
+                        <span>04 de Abril de 2026</span>
+                    </div>
+                    
+                    <div class="detalhe-item">
+                        <span class="icone">⏰</span>
+                        <span>11:00 horas</span>
+                    </div>
+                    
+                    <div class="detalhe-item">
+                        <span class="icone">📍</span>
+                        <a href="https://share.google/gobkUK9zAM5rfP6Zz" target="_blank">Avenida Paulo Schroeder, 1422</a>
+                    </div>
+                </div>
+                
+                <!-- Confirmação de Presença -->
+                <div class="secao-confirmacao">
+                    <h2 class="titulo-secao">Confirme sua presença</h2>
+                    
+                    <!-- Opções de presença -->
+                    <div class="opcoes-presenca">
+                        <label class="opcao-radio">
+                            <input type="radio" name="presenca" value="sim" id="opcaoSim" checked>
+                            <span class="radio-custom"></span>
+                            <span class="radio-label">✅ Vou comparecer</span>
+                        </label>
+                        
+                        <label class="opcao-radio">
+                            <input type="radio" name="presenca" value="nao" id="opcaoNao">
+                            <span class="radio-custom"></span>
+                            <span class="radio-label">❌ Não poderei ir</span>
+                        </label>
+                    </div>
+                    
+                    <!-- Seção para quem VAI -->
+                    <div id="secaoVai" class="secao-presenca ativa">
+                        <div class="contador-pessoas">
+                            <label for="numPessoas">Quantas pessoas (contando com você) irão?</label>
+                            <input type="number" id="numPessoas" min="1" max="10" value="1" class="input-numero">
+                        </div>
+                        
+                        <div id="containerNomes" class="container-nomes"></div>
+                        
+                        <button id="confirmarPresenca" class="botao-confirmar-presenca">
+                            Confirmar via WhatsApp
+                            <span class="seta">→</span>
+                            <span class="whatsapp-indicator">📱</span>
+                        </button>
+                    </div>
+                    
+                    <!-- Seção para quem NÃO VAI -->
+                    <div id="secaoNaoVai" class="secao-presenca">
+                        <div class="mensagem-desculpas">
+                            <textarea id="textoDesculpas" placeholder="Escreva sua mensagem de desculpas (opcional)" rows="3"></textarea>
+                        </div>
+                        
+                        <button id="enviarDesculpas" class="botao-enviar-desculpas">
+                            Enviar via WhatsApp
+                            <span class="seta">→</span>
+                            <span class="whatsapp-indicator">📱</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <p class="mensagem-carinhosa">
+                    "Sua presença fará tudo mais especial!"
+                </p>
+            </div>
+            
+            <div class="mensagem-rodape">
+                <p>Com carinho, 💖</p>
+                <p class="assinatura">Josiane</p>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal de Confirmação -->
+    <div class="modal" id="modalConfirmacao">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Obrigado pela confirmação! 🎉</h2>
+            <p id="mensagemModal"></p>
+            <p style="color: #25D366; margin-top: 10px;">📱 Mensagem enviada para o WhatsApp!</p>
+            <button class="botao-fechar-modal">Fechar</button>
+        </div>
+    </div>
+
+    <script>
+        // Elementos da tela inicial e carta
+        const telaInicial = document.getElementById('telaInicial');
+        const botaoAbrir = document.getElementById('abrirPresente');
+        const carta = document.getElementById('carta');
+        const overlay = document.getElementById('overlay');
+        const conteudoPrincipal = document.getElementById('conteudoPrincipal');
+
+        // ===== PLAYER DE MÚSICA COM AUTOPLAY GARANTIDO =====
+        const musica = document.getElementById('musica');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const muteBtn = document.getElementById('muteBtn');
+        const volumeSlider = document.getElementById('volumeSlider');
+
+        let estaTocando = false;
+
+        // CONFIGURAÇÕES CRÍTICAS PARA AUTOPLAY
+        musica.preload = 'auto';
+        musica.loop = true;
+        musica.muted = true; // COMEÇA MUDO (isso permite autoplay em todos navegadores)
+        musica.volume = 0.5;
+
+        // ===== ESTRATÉGIA 1: Autoplay com áudio mudo (100% garantido) =====
+        function iniciarMusicaMuda() {
+            console.log("Tentando autoplay com áudio mudo...");
+            
+            musica.play()
+                .then(() => {
+                    console.log("✅ Música tocando (muda)!");
+                    estaTocando = true;
+                    
+                    // Atualiza botão
+                    playPauseBtn.innerHTML = '<span class="play-icon">⏸️</span>';
+                    playPauseBtn.classList.add('playing');
+                    
+                    // Mostra aviso que está mudo
+                    mostrarAvisoMusicaMuda();
+                })
+                .catch(error => {
+                    console.log("❌ Falhou até mesmo o áudio mudo:", error);
+                    // Último recurso: botão gigante
+                    criarBotaoEmergencia();
+                });
+        }
+
+        // Mostra aviso que a música está tocando mas muda
+        function mostrarAvisoMusicaMuda() {
+            const aviso = document.createElement('div');
+            aviso.id = 'aviso-mudo';
+            aviso.innerHTML = `
+                <div style="
+                    position: fixed;
+                    top: 80px;
+                    right: 100px;
+                    background: rgba(0,0,0,0.8);
+                    color: white;
+                    padding: 10px 20px;
+                    border-radius: 50px;
+                    font-size: 0.9rem;
+                    z-index: 1000;
+                    backdrop-filter: blur(10px);
+                    border: 1px solid #ff6b6b;
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+                    animation: pulseAviso 2s infinite;
+                ">
+                    🔇 Música tocando (mudo) - Clique no alto-falante para ativar o som
+                </div>
+            `;
+            document.body.appendChild(aviso);
+            
+            // Remove após 5 segundos
+            setTimeout(() => {
+                const el = document.getElementById('aviso-mudo');
+                if (el) el.remove();
+            }, 5000);
+        }
+
+        // ===== ESTRATÉGIA 2: Forçar ativação do som no primeiro clique =====
+        function ativarSomNoPrimeiroClique() {
+            // Qualquer clique na página ativa o som
+            document.body.addEventListener('click', function ativarSom() {
+                if (musica.muted) {
+                    musica.muted = false;
+                    muteBtn.innerHTML = '<span class="mute-icon">🔊</span>';
+                    muteBtn.classList.remove('muted');
+                    
+                    // Mostra mensagem de sucesso
+                    mostrarMensagemFlash('🔊 Som ativado!');
+                    
+                    // Remove o aviso de mudo se existir
+                    const aviso = document.getElementById('aviso-mudo');
+                    if (aviso) aviso.remove();
+                }
+            }, { once: true }); // Executa apenas uma vez
+        }
+
+        // ===== ESTRATÉGIA 3: Botão de emergência (se tudo falhar) =====
+        function criarBotaoEmergencia() {
+            const botao = document.createElement('button');
+            botao.id = 'botao-emergencia';
+            botao.innerHTML = `
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+                    <span style="font-size: 3rem;">🎵</span>
+                    <span style="font-size: 1.5rem;">Clique para iniciar a música</span>
+                    <span style="font-size: 0.9rem; opacity: 0.8;">O navegador bloqueou o autoplay</span>
+                </div>
+            `;
+            
+            Object.assign(botao.style, {
+                position: 'fixed',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                background: 'linear-gradient(135deg, #ff6b6b, #ff8e8e)',
+                color: 'white',
+                border: 'none',
+                padding: '40px',
+                borderRadius: '30px',
+                cursor: 'pointer',
+                zIndex: '10000',
+                boxShadow: '0 20px 60px rgba(255,107,107,0.6)',
+                border: '3px solid rgba(255,255,255,0.3)',
+                fontSize: '1.2rem',
+                fontWeight: 'bold',
+                animation: 'pulsoEmergencia 1.5s infinite'
+            });
+            
+            botao.onclick = function() {
+                musica.play()
+                    .then(() => {
+                        estaTocando = true;
+                        musica.muted = false;
+                        playPauseBtn.innerHTML = '<span class="play-icon">⏸️</span>';
+                        playPauseBtn.classList.add('playing');
+                        muteBtn.innerHTML = '<span class="mute-icon">🔊</span>';
+                        muteBtn.classList.remove('muted');
+                        botao.remove();
+                        
+                        // Remove overlay
+                        const overlay = document.querySelector('.overlay-emergencia');
+                        if (overlay) overlay.remove();
+                    });
+            };
+            
+            document.body.appendChild(botao);
+            
+            // Overlay escuro
+            const overlayEmergencia = document.createElement('div');
+            overlayEmergencia.className = 'overlay-emergencia';
+            Object.assign(overlayEmergencia.style, {
+                position: 'fixed',
+                top: '0',
+                left: '0',
+                width: '100%',
+                height: '100%',
+                background: 'rgba(0,0,0,0.8)',
+                backdropFilter: 'blur(8px)',
+                zIndex: '9999'
+            });
+            document.body.appendChild(overlayEmergencia);
+        }
+
+        // ===== FUNÇÕES AUXILIARES =====
+        function mostrarMensagemFlash(texto) {
+            const msg = document.createElement('div');
+            msg.textContent = texto;
+            Object.assign(msg.style, {
+                position: 'fixed',
+                bottom: '30px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                background: '#ff6b6b',
+                color: 'white',
+                padding: '15px 30px',
+                borderRadius: '50px',
+                zIndex: '10001',
+                fontSize: '1.2rem',
+                fontWeight: 'bold',
+                boxShadow: '0 10px 30px rgba(255,107,107,0.5)',
+                animation: 'flashMensagem 2s forwards'
+            });
+            document.body.appendChild(msg);
+            setTimeout(() => msg.remove(), 2000);
+        }
+
+        // ===== EVENTOS DO PLAYER =====
+        playPauseBtn.addEventListener('click', () => {
+            if (estaTocando) {
+                musica.pause();
+                playPauseBtn.innerHTML = '<span class="play-icon">▶</span>';
+                playPauseBtn.classList.remove('playing');
+            } else {
+                musica.play();
+                playPauseBtn.innerHTML = '<span class="play-icon">⏸️</span>';
+                playPauseBtn.classList.add('playing');
+            }
+            estaTocando = !estaTocando;
+        });
+
+        muteBtn.addEventListener('click', () => {
+            musica.muted = !musica.muted;
+            muteBtn.innerHTML = musica.muted ? '<span class="mute-icon">🔇</span>' : '<span class="mute-icon">🔊</span>';
+            muteBtn.classList.toggle('muted');
+            
+            // Se estava mudo e agora ativou, mostra mensagem
+            if (!musica.muted) {
+                mostrarMensagemFlash('🔊 Som ativado!');
+            }
+        });
+
+        volumeSlider.addEventListener('input', (e) => {
+            musica.volume = e.target.value;
+            if (musica.volume === 0) {
+                muteBtn.innerHTML = '<span class="mute-icon">🔇</span>';
+                muteBtn.classList.add('muted');
+            } else {
+                muteBtn.innerHTML = '<span class="mute-icon">🔊</span>';
+                muteBtn.classList.remove('muted');
+                musica.muted = false;
+            }
+        });
+
+        // Animação da carta
+        botaoAbrir.addEventListener('click', () => {
+            // Mostra a carta e o overlay
+            carta.classList.add('aberta');
+            overlay.classList.add('visivel');
+            
+            // Esconde o botão e a frase inicial
+            botaoAbrir.style.opacity = '0';
+            document.querySelector('.frase').style.opacity = '0';
+            
+            // Toca a animação de abertura
+            setTimeout(() => {
+                carta.classList.remove('aberta');
+                carta.classList.add('aproximando');
+                overlay.classList.remove('visivel');
+            }, 2000);
+            
+            setTimeout(() => {
+                carta.classList.remove('aproximando');
+                carta.classList.add('saindo');
+                
+                // Esconde a tela inicial e mostra o conteúdo principal
+                setTimeout(() => {
+                    telaInicial.classList.add('hidden');
+                    conteudoPrincipal.classList.add('visible');
+                    
+                    // Inicia a música com autoplay garantido
+                    setTimeout(iniciarMusicaMuda, 500);
+                }, 800);
+            }, 3500);
+        });
+
+        // Se quiser que a carta também abra ao clicar nela
+        carta.addEventListener('click', () => {
+            if (carta.classList.contains('aberta')) {
+                carta.classList.remove('aberta');
+            } else if (!carta.classList.contains('aproximando') && !carta.classList.contains('saindo') && !telaInicial.classList.contains('hidden')) {
+                carta.classList.add('aberta');
+            }
+        });
+
+        // ===== CÓDIGO DE CONFIRMAÇÃO DE PRESENÇA =====
+        const opcaoSim = document.getElementById('opcaoSim');
+        const opcaoNao = document.getElementById('opcaoNao');
+        const secaoVai = document.getElementById('secaoVai');
+        const secaoNaoVai = document.getElementById('secaoNaoVai');
+        const numPessoas = document.getElementById('numPessoas');
+        const containerNomes = document.getElementById('containerNomes');
+        const confirmarPresenca = document.getElementById('confirmarPresenca');
+        const enviarDesculpas = document.getElementById('enviarDesculpas');
+        const modal = document.getElementById('modalConfirmacao');
+        const mensagemModal = document.getElementById('mensagemModal');
+
+        // Número do WhatsApp (substitua pelo número correto)
+        const NUMERO_WHATSAPP = '5547984522376';
+
+        opcaoSim.addEventListener('change', function() {
+            if (this.checked) {
+                secaoVai.classList.add('ativa');
+                secaoNaoVai.classList.remove('ativa');
+            }
+        });
+
+        opcaoNao.addEventListener('change', function() {
+            if (this.checked) {
+                secaoNaoVai.classList.add('ativa');
+                secaoVai.classList.remove('ativa');
+            }
+        });
+
+        function gerarCamposNomes() {
+            const quantidade = parseInt(numPessoas.value) || 1;
+            containerNomes.innerHTML = '';
+            
+            for (let i = 0; i < quantidade; i++) {
+                const div = document.createElement('div');
+                div.className = 'campo-nome';
+                div.innerHTML = `
+                    <span class="numero-pessoa">${i + 1}</span>
+                    <input type="text" placeholder="Nome da pessoa ${i + 1}" id="nome${i}" class="input-nome">
+                `;
+                containerNomes.appendChild(div);
+            }
+        }
+
+        gerarCamposNomes();
+        numPessoas.addEventListener('change', gerarCamposNomes);
+
+        function enviarWhatsApp(mensagem) {
+            const mensagemCodificada = encodeURIComponent(mensagem);
+            const urlWhatsApp = `https://wa.me/${NUMERO_WHATSAPP}?text=${mensagemCodificada}`;
+            window.open(urlWhatsApp, '_blank');
+        }
+
+        confirmarPresenca.addEventListener('click', () => {
+            const nomes = [];
+            for (let i = 0; i < parseInt(numPessoas.value); i++) {
+                const nomeInput = document.getElementById(`nome${i}`);
+                if (nomeInput && nomeInput.value.trim()) {
+                    nomes.push(nomeInput.value.trim());
+                }
+            }
+            
+            if (nomes.length === 0) {
+                alert('Por favor, preencha pelo menos um nome!');
+                return;
+            }
+            
+            let mensagem = '';
+            const quantidade = nomes.length;
+            
+            if (quantidade === 1) {
+                mensagem = `Obrigado pelo convite! Pode contar com minha presença. Assinado: ${nomes[0]}`;
+            } else {
+                const listaNomes = nomes.join(', ');
+                mensagem = `Obrigado pelo convite! Pode contar com nossa presença. Assinado: ${listaNomes}`;
+            }
+            
+            mensagemModal.textContent = mensagem;
+            modal.classList.add('show');
+            enviarWhatsApp(mensagem);
+        });
+
+        enviarDesculpas.addEventListener('click', () => {
+            const textoDesculpas = document.getElementById('textoDesculpas').value.trim();
+            
+            let mensagem = '';
+            
+            if (textoDesculpas) {
+                mensagem = `Infelizmente não poderei comparecer. ${textoDesculpas}`;
+            } else {
+                mensagem = `Infelizmente não poderei comparecer ao evento. Desejo uma ótima celebração!`;
+            }
+            
+            mensagemModal.textContent = mensagem;
+            modal.classList.add('show');
+            enviarWhatsApp(mensagem);
+        });
+
+        const closeModal = document.querySelector('.close-modal');
+        const fecharModalBtn = document.querySelector('.botao-fechar-modal');
+
+        function fecharModal() {
+            modal.classList.remove('show');
+        }
+
+        closeModal.addEventListener('click', fecharModal);
+        fecharModalBtn.addEventListener('click', fecharModal);
+
+        window.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                fecharModal();
+            }
+        });
+
+        // ===== CARROSSEL =====
+        let slideIndex = 0;
+        const slides = document.querySelectorAll('.slide');
+        const dots = document.querySelectorAll('.dot');
+        const carrossel = document.querySelector('.carrossel');
+
+        function showSlide(n) {
+            slideIndex = n;
+            if (slideIndex >= slides.length) slideIndex = 0;
+            if (slideIndex < 0) slideIndex = slides.length - 1;
+            
+            carrossel.style.transform = `translateX(-${slideIndex * 100}%)`;
+            
+            dots.forEach(dot => dot.classList.remove('active'));
+            dots[slideIndex].classList.add('active');
+        }
+
+        document.querySelector('.prev').addEventListener('click', () => {
+            showSlide(slideIndex - 1);
+        });
+
+        document.querySelector('.next').addEventListener('click', () => {
+            showSlide(slideIndex + 1);
+        });
+
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                showSlide(index);
+            });
+        });
+
+        // Auto-play do carrossel
+        setInterval(() => {
+            showSlide(slideIndex + 1);
+        }, 5000);
+
+        // ===== ANIMAÇÕES CSS ADICIONAIS =====
+        const styleAnimacoes = document.createElement('style');
+        styleAnimacoes.textContent = `
+            @keyframes pulseAviso {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0.7; }
+            }
+            
+            @keyframes pulsoEmergencia {
+                0%, 100% { transform: translate(-50%, -50%) scale(1); }
+                50% { transform: translate(-50%, -50%) scale(1.05); }
+            }
+            
+            @keyframes flashMensagem {
+                0% { transform: translateX(-50%) translateY(100%); opacity: 0; }
+                20% { transform: translateX(-50%) translateY(0); opacity: 1; }
+                80% { transform: translateX(-50%) translateY(0); opacity: 1; }
+                100% { transform: translateX(-50%) translateY(-20px); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(styleAnimacoes);
+
+        // ===== INICIAR PREPARAÇÕES DO PLAYER =====
+        window.addEventListener('load', () => {
+            console.log("🚀 Preparando autoplay garantido...");
+            
+            // PASSO 1: Prepara para ativar som no clique
+            setTimeout(ativarSomNoPrimeiroClique, 1000);
+            
+            // PASSO 2: Para dispositivos móveis - toque ativa som
+            document.addEventListener('touchstart', function ativarSomTouch() {
+                if (musica.muted) {
+                    musica.muted = false;
+                    muteBtn.innerHTML = '<span class="mute-icon">🔊</span>';
+                    muteBtn.classList.remove('muted');
+                }
+            }, { once: true });
+        });
+    </script>
+</body>
+</html>
