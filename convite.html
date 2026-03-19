@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presente da Josiane</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #f5f0ff 0%, #e8d9ff 100%);
+            margin: 0;
+        }
+
+        .container {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .frase {
+            font-size: 2.5rem;
+            color: #6b4e8f;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            animation: aparecer 1s ease;
+        }
+
+        .botao-abrir {
+            background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.3rem;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255,107,107,0.3);
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        .botao-abrir:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(255,107,107,0.4);
+        }
+
+        .carta {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            width: 300px;
+            height: 400px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .carta.aberta {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+            pointer-events: auto;
+            animation: pulsar 0.5s ease;
+        }
+
+        .carta.aproximando {
+            transform: translate(-50%, -50%) scale(1.5);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .carta.saindo {
+            transform: translate(-50%, -50%) scale(3);
+            opacity: 0;
+            pointer-events: none;
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.8s;
+        }
+
+        .envelope {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background: #ffd7d7;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .carta-corpo {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #fff9e6;
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transform-origin: top;
+            animation: fecharCarta 0.5s ease forwards;
+        }
+
+        .carta.aberta .carta-corpo {
+            animation: abrirCarta 0.8s ease forwards;
+        }
+
+        .carta-texto {
+            font-size: 1.2rem;
+            color: #6b4e8f;
+            line-height: 1.6;
+            text-align: center;
+            margin-bottom: 20px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s 0.3s, transform 0.5s 0.3s;
+        }
+
+        .carta.aberta .carta-texto {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .coracao {
+            color: #ff6b6b;
+            font-size: 3rem;
+            animation: bater 1s infinite;
+        }
+
+        @keyframes abrirCarta {
+            0% {
+                transform: rotateX(0deg);
+            }
+            100% {
+                transform: rotateX(180deg);
+            }
+        }
+
+        @keyframes fecharCarta {
+            0% {
+                transform: rotateX(180deg);
+            }
+            100% {
+                transform: rotateX(0deg);
+            }
+        }
+
+        @keyframes aparecer {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulsar {
+            0% {
+                transform: translate(-50%, -50%) scale(0.9);
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.1);
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        @keyframes bater {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.2);
+            }
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.3);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s;
+            z-index: 999;
+        }
+
+        .overlay.visivel {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        @media (max-width: 768px) {
+            .frase {
+                font-size: 2rem;
+            }
+            
+            .carta {
+                width: 250px;
+                height: 350px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay" id="overlay"></div>
+    
+    <div class="container">
+        <h1 class="frase">💝 Josiane te enviou um presente 💝</h1>
+        <button class="botao-abrir" id="abrirPresente">Abrir presente 🎁</button>
+    </div>
+
+    <div class="carta" id="carta">
+        <div class="envelope">
+            <div class="carta-corpo">
+                <div class="carta-texto">
+                    <p>Feliz Aniversário!</p>
+                    <p>Que seu dia seja especial</p>
+                    <p>Com carinho,</p>
+                    <p><strong>Josiane</strong></p>
+                </div>
+                <div class="coracao">❤️</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const botaoAbrir = document.getElementById('abrirPresente');
+        const carta = document.getElementById('carta');
+        const overlay = document.getElementById('overlay');
+
+        botaoAbrir.addEventListener('click', () => {
+            // Mostra a carta e o overlay
+            carta.classList.add('aberta');
+            overlay.classList.add('visivel');
+            
+            // Esconde o botão e a frase inicial
+            botaoAbrir.style.opacity = '0';
+            document.querySelector('.frase').style.opacity = '0';
+            
+            // Toca a animação de abertura
+            setTimeout(() => {
+                // Após 2 segundos, começa a aproximar
+                carta.classList.remove('aberta');
+                carta.classList.add('aproximando');
+                
+                // Esconde o overlay
+                overlay.classList.remove('visivel');
+            }, 2000);
+            
+            // Após mais 1.5 segundos, faz a transição para o próximo site
+            setTimeout(() => {
+                carta.classList.remove('aproximando');
+                carta.classList.add('saindo');
+                
+                // Redireciona para o próximo site
+                // Substitua a URL abaixo pelo site que você deseja
+                window.location.href = 'convite principal.html'; // Mude para o site desejado
+            }, 3500);
+        });
+
+        // Se quiser que a carta também abra ao clicar nela
+        carta.addEventListener('click', () => {
+            if (carta.classList.contains('aberta')) {
+                carta.classList.remove('aberta');
+            } else if (!carta.classList.contains('aproximando') && !carta.classList.contains('saindo')) {
+                carta.classList.add('aberta');
+            }
+        });
+    </script>
+</body>
+</html>

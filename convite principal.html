@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Convite Especial - Josiane</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Player de Música -->
+        <div class="music-player">
+        <audio id="musica" loop preload="auto">
+    <!-- Se a música estiver na mesma pasta -->
+    <source src="musica.m4a" type="audio/mpeg">
+    
+    <!-- Se quiser testar com uma música online (recomendo para teste) -->
+    <!-- <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg"> -->
+    
+    Seu navegador não suporta áudio.
+</audio>
+            
+            <button id="playPauseBtn" class="play-btn">
+                <span class="play-icon">▶</span>
+            </button>
+            
+            <button id="muteBtn" class="mute-btn">
+                <span class="mute-icon">🔊</span>
+            </button>
+            
+            <div class="volume-control">
+                <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="0.7">
+            </div>
+        </div>
+
+        <!-- Conteúdo Principal -->
+        <main class="main-content">
+            <div class="envelope-icon">💌</div>
+            
+            <h1 class="titulo">
+                <span class="nome-destaque">Josiane</span>
+                <span class="convite-texto">tem um convite especial para você!</span>
+                <div class="carrossel-container">
+    <div class="carrossel">
+        <div class="slide">
+            <img src="imagem1.jpg" alt="Imagem 1">
+        </div>
+        <div class="slide">
+            <img src="imagem2.jpg" alt="Imagem 2">
+        </div>
+        <div class="slide">
+            <img src="imagem3.jpg" alt="Imagem 3">
+        </div>
+    </div>
+    
+    <button class="prev">&#10094;</button>
+    <button class="next">&#10095;</button>
+    
+    <div class="indicadores">
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+    </div>
+</div>
+            </h1>
+            
+            <div class="convite-card">
+                <p class="mensagem-convite">
+                    Você está convidado para um momento muito especial...
+                </p>
+                
+                <div class="detalhes-convite">
+                    <div class="detalhe-item">
+                        <span class="icone">📅</span>
+                        <span>04 de Abril de 2026</span>
+                    </div>
+                    
+                    <div class="detalhe-item">
+                        <span class="icone">⏰</span>
+                        <span>11:00 horas </span>
+                    </div>
+                    
+                    <div class="detalhe-item">
+                        <span class="icone">📍</span>
+                       <a href="https://share.google/gobkUK9zAM5rfP6Zz">avenida paulo schroeder 1422</a>
+                    </div>
+                </div>
+                
+                <!-- NOVA SEÇÃO: Confirmação de Presença -->
+                <div class="secao-confirmacao">
+                    <h2 class="titulo-secao">Confirme sua presença</h2>
+                    
+                    <!-- Opções de presença -->
+                    <div class="opcoes-presenca">
+                        <label class="opcao-radio">
+                            <input type="radio" name="presenca" value="sim" id="opcaoSim" checked>
+                            <span class="radio-custom"></span>
+                            <span class="radio-label">✅ Vou comparecer</span>
+                        </label>
+                        
+                        <label class="opcao-radio">
+                            <input type="radio" name="presenca" value="nao" id="opcaoNao">
+                            <span class="radio-custom"></span>
+                            <span class="radio-label">❌ Não poderei ir</span>
+                        </label>
+                    </div>
+                    
+                    <!-- Seção para quem VAI (inicialmente visível) -->
+                    <div id="secaoVai" class="secao-presenca ativa">
+                        <div class="contador-pessoas">
+                            <label for="numPessoas">Quantas pessoas (contando com você) irão?</label>
+                            <input type="number" id="numPessoas" min="1" max="10" value="1" class="input-numero">
+                        </div>
+                        
+                        <div id="containerNomes" class="container-nomes">
+                            <!-- Os campos de nome serão gerados aqui pelo JavaScript -->
+                        </div>
+                        
+                        <button id="confirmarPresenca" class="botao-confirmar-presenca">
+                            Confirmar Presença
+                            <span class="seta">→</span>
+                        </button>
+                    </div>
+                    
+                    <!-- Seção para quem NÃO VAI (inicialmente oculta) -->
+                    <div id="secaoNaoVai" class="secao-presenca">
+                        <div class="mensagem-desculpas">
+                            <textarea id="textoDesculpas" placeholder="Escreva sua mensagem de desculpas (opcional)" rows="3"></textarea>
+                        </div>
+                        
+                        <button id="enviarDesculpas" class="botao-enviar-desculpas">
+                            Enviar mensagem
+                            <span class="seta">→</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <p class="mensagem-carinhosa">
+                    "Sua presença fará tudo mais especial!"
+                </p>
+            </div>
+            
+            <div class="mensagem-rodape">
+                <p>Com carinho, 💖</p>
+                <p class="assinatura">Josiane</p>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal de Confirmação -->
+    <div class="modal" id="modalConfirmacao">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Obrigado pela confirmação! 🎉</h2>
+            <p id="mensagemModal"></p>
+            <button class="botao-fechar-modal">Fechar</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
